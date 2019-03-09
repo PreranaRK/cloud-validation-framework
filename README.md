@@ -20,6 +20,13 @@ For the current release the installation has to be done from github. Following a
 - Install the dependent packages as present in requirements.txt `pip install -r requirements.txt`
 - Install mongo server and start the service.
 - Update config.ini to reflect the database server settings.
-- Run the tests from the filesystem. `python3 validator.py container3`
-- Populate snapshot, test and structure json and then run the tests from database. `python3 validator.py container3 --db`
+- Run the tests from the filesystem. `python3 utilities/validator.py container3`
+- Populate snapshot, test and structure json and then run the tests from database. `python3 utilities/validator.py container3 --db`
 
+For the current release the installation from pypi. Following are the steps:
+- Create virtual environment using `virtualenv --python=python3 cloudenv`.
+- Set the virtual environment. `source cloudenv/bin/activate`
+- Upgrade the package manager `pip install -U pip`
+- Install mongo server and start the service.
+- Install prancer-basic as `pip install prancer-basic`
+- Follow steps in http://www.prancer.io/guidance/?section=step-1-clone-the-repo
