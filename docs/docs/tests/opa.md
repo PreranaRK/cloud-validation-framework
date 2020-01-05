@@ -48,7 +48,7 @@ Prancer Cloud Validation framework has built-in simple and robust classic rule e
 }
 ```
 
-And here is the `ruleexists.rego`:
+And here is a sample `ruleexists.rego`:
 ```
 package rule
 default rulepass = true
@@ -59,7 +59,64 @@ rulepass = false{
 
 The file ruleexists.rego should exist in the same directory (container) as the test files.
 
-### References
+## Examples
+Here we are presenting some examples of compliance queries based on the OPA. These examples are based on the `AWS` connector.
+
+### Example 1
+This policy identifies the EBS volumes which are not encrypted. The snapshots that you take of an encrypted EBS volume are also encrypted and can be moved between AWS Regions as needed. You cannot share encrypted snapshots with other AWS accounts and you cannot make them public. It is recommended that EBS volume should be encrypted.
+
+Rego rule:
+```
+package rule
+default rulepass = false
+rulepass = true{
+   input.Volumes[*].Encrypted=false
+}
+```
+
+### Example 2
+EBS volumes often persist after an EC2 instance has been terminated. We recommend regular review of these volumes, since they can contain sensitive data related to your company, application, infrastructure, or even users.
+
+Rego rule:
+```
+package rule
+default rulepass = false
+rulepass = true{
+   input.Volumes[_].Attachments[_].State!="attached"
+}
+rulepass = true{
+   is_null(input.Volumes[_].Attachments[_])
+}"
+```
+
+### Example 3
+AWS provides Identity Access Management (IAM) roles to securely access AWS services and resources. The role is an identity with permission policies that define what the identity can and cannot do in AWS. As a best practice, create IAM roles and attach the role to manage EC2 instance permissions securely instead of distributing or sharing keys or passwords.
+
+Rego Rule:
+```
+package rule
+default rulepass = false
+rulepass = true{
+  input.Reservations[_].Instances[_].State.Code=16
+  instance := input.Reservations[_].Instances[_]
+  not instance.IamInstanceProfile.Arn
+}
+```
+
+### Example 4
+This policy identifies if your account is near the private gateway limitation per VPC per Region. AWS provides a reasonable starting limitation for the maximum number of Virtual private gateways you can assign in each VPC. If you approach the limit in a particular VPC, this alert indicates that you have nearly exhausted your allocation.
+NOTE: As per http://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html Virtual private gateway per region limit is 5. This policy will trigger an alert if Virtual private gateway per region reached 80% (i.e. 4) of resource availability limit allocated."
+
+Rego Rule:
+```
+package rule
+default rulepass = false
+rulepass = true{
+   count(input.VpnGateways)>3
+}
+```
+
+## References
   - https://www.openpolicyagent.org/docs/latest/  OPA documentation.
   - https://github.com/prancer-io/cloud-validation-framework Prancer command line toolset with OPA
 
